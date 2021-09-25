@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1632544929 source:c:\users\mari78\desktop\dz2\main.cpp
+	<iostream>
+	<set>
+	<random>
+	<fstream>
+
