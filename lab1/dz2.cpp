@@ -116,7 +116,7 @@ public:
 };
 
 int main(int argc, const char * argv[]) {
-    DiscreteState d(1);
+    DiscreteState d(100);
     SegmentState s(0,10);
     SetState ss({1, 3, 5, 7, 23, 48, 57, 60, 90, 99});
     ProbabilityTest pt(10,0,100,100000);
@@ -142,6 +142,26 @@ int main(int argc, const char * argv[]) {
     {
             ProbabilityTest pt(10, 0, 100, test_count);
             fout << pt(s) << ";" << test_count << std::endl;
+    }
+    fout.close();
+
+    // построение графика вероятности от количества испытаний для DiscreteState
+
+    fout.open("Discrete(count).txt");
+    for (int test_count = 0; test_count <= 1000000; test_count += 1000)
+    {
+            ProbabilityTest pt(10, 0, 100, test_count);
+            fout << pt(d) << ";" << test_count << std::endl;
+    }
+    fout.close();
+
+    // построение графика вероятности от максимального числа для DiscreteState
+
+    fout.open("Discrete(max).txt");
+    for (int test_max = 110; test_max <= 1010; test_max += 20)
+    {
+            ProbabilityTest pt(10, 0, test_max, 1000000);
+            fout << pt(d) << ";" << test_max << std::endl;
     }
     fout.close();
 
