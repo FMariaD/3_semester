@@ -57,13 +57,12 @@ public:
 
 class SegmPlusDisc: public States {
 private:
-    SegmentState const *sg;
-    DiscreteState const *ds;
+    States const *s1, *s2;
 
 public:
-    SegmPlusDisc(SegmentState *sg, DiscreteState *ds): sg(sg), ds(ds) { }
+    SegmPlusDisc(States *s1, States *s2): s1(s1), s2(s2) { }
     bool contains(int s) const {
-        return (sg->contains(s) || ds->contains(s));
+        return (s1->contains(s) || s2->contains(s));
     }
 };
 
@@ -71,27 +70,12 @@ public:
 
 class SegmMinusDisc: public States {
 private:
-    SegmentState const *sg;
-    DiscreteState const *ds;
+    States const *s1, *s2;
 
 public:
-    SegmMinusDisc(SegmentState *sg, DiscreteState *ds): sg(sg), ds(ds) { }
+    SegmMinusDisc(States *s1, States *s2): s1(s1), s2(s2) { }
     bool contains(int s) const {
-        return sg->contains(s) && !(ds->contains(s));
-    }
-};
-
-// непрерывные состояния с пропуском и дополнением
-
-class SegmBothDisc: public States {
-private:
-    SegmPlusDisc const *spd;
-    SegmMinusDisc const *smd;
-
-public:
-    SegmBothDisc(SegmPlusDisc *spd, SegmMinusDisc *smd): spd(spd), smd(smd) { }
-    bool contains(int s) const {
-        return spd->contains(s) || smd->contains(s);
+        return s1->contains(s) && !(s2->contains(s));
     }
 };
 
@@ -119,51 +103,21 @@ int main(int argc, const char * argv[]) {
     DiscreteState d(100);
     SegmentState s(0,10);
     SetState ss({1, 3, 5, 7, 23, 48, 57, 60, 90, 99});
-    ProbabilityTest pt(10,0,100,100000);
-    std::cout << pt(d) << std::endl;
-    std::cout << pt(s) << std::endl;
-    std::cout << pt(ss) << std::endl;
+    ProbabilityTest pt(10,1,10,100000);
 
-    // построение графика вероятности от максимального числа для SegmentState
+    DiscreteState ds1(10);
+    SegmentState ss1(1, 3);
+    SegmentState ss2(8, 10);
 
-    std::ofstream fout;
-    fout.open("Segment(max).txt");
-    for (int test_max = 110; test_max <= 1010; test_max += 20)
-    {
-            ProbabilityTest pt(10, 0, test_max, 1000000);
-            fout << pt(s) << ";" << test_max << std::endl;
-    }
-    fout.close();
+    std::cout << pt(ds1) << std::endl;
+    std::cout << pt(ss1) << std::endl;
+    std::cout << pt(ss2) << std::endl;
 
-    // построение графика вероятности от количества испытаний для SegmentState
+    SegmPlusDisc splus(&ss2, &ss1);
+    SegmMinusDisc sminus(&ss2, &ds1);
 
-    fout.open("Segment(count).txt");
-    for (int test_count = 0; test_count <= 1000000; test_count += 1000)
-    {
-            ProbabilityTest pt(10, 0, 100, test_count);
-            fout << pt(s) << ";" << test_count << std::endl;
-    }
-    fout.close();
-
-    // построение графика вероятности от количества испытаний для DiscreteState
-
-    fout.open("Discrete(count).txt");
-    for (int test_count = 0; test_count <= 1000000; test_count += 1000)
-    {
-            ProbabilityTest pt(10, 0, 100, test_count);
-            fout << pt(d) << ";" << test_count << std::endl;
-    }
-    fout.close();
-
-    // построение графика вероятности от максимального числа для DiscreteState
-
-    fout.open("Discrete(max).txt");
-    for (int test_max = 110; test_max <= 1010; test_max += 20)
-    {
-            ProbabilityTest pt(10, 0, test_max, 1000000);
-            fout << pt(d) << ";" << test_max << std::endl;
-    }
-    fout.close();
+    std::cout << pt(splus) << std::endl;
+    std::cout << pt(sminus) << std::endl;
 
     return 0;
 }
